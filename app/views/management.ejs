@@ -1,0 +1,175 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PeerCDN Video Demo</title>
+    <script src="http://localhost:3005/socket.io/socket.io.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/peerjs/peer.js"></script>
+
+    <script src="peer-cdn/utils.js"></script>
+    <script src="peer-cdn/peer-container.js"></script>
+    <script src="peer-cdn/peer-manager.js"></script>
+    <script src="peer-cdn/peer-request.js"></script>
+    <script src="peer-cdn/peer-resource.js"></script>
+    <script src="peer-cdn/peer-stats.js"></script>
+    <script src="peer-cdn/peer-cache.js"></script>
+    <script src="peer-cdn/peer-cache-size-limit.js"></script>
+    <script src="peer-cdn/peer-history.js"></script>
+    <script src="peer-cdn/peercdn.js"></script>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/form-elements.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/media-queries.css">
+    
+    <!-- Media type-->
+    <script src="peer-media/peer-xhr.js"></script>
+
+    <!-- Video JS Player-->
+    <link href="https://vjs.zencdn.net/4.12/video-js.css" rel="stylesheet">
+    <script src="external-lib/video.dev.js"></script>
+    <script src="external-lib/videojs-media-sources.js"></script>
+    <script src="external-lib/videojs.hls.js"></script>
+    <script src="peer-media/peer-videojs-hls.js"></script>
+    <style type="text/css">
+        #serverProgress {
+          width: 100%;
+          background-color: #ddd;
+        }
+
+        #serverBar {
+          width: 0%;
+          height: 30px;
+          background-color: #4CAF50;
+          text-align: center;
+          line-height: 30px;
+          color: white;
+        }
+
+        #peerProgress {
+          width: 100%;
+          background-color: #ddd;
+        }
+
+        #peerBar {
+          width: 0%;
+          height: 30px;
+          background-color: #188fca;
+          text-align: center;
+          line-height: 30px;
+          color: white;
+        }
+    </style>
+</head>
+<body>
+  <!-- Top menu -->
+  <nav class="navbar navbar-inverse navbar-fixed-top navbar-no-bg" role="navigation" style="background-color: #283a44">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#top-navbar-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#"><span color="#ffffff" style="font-size: 200%; font-weight: bold">Peer BK</span></a>
+      </div>
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="top-navbar-1">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a class="scroll-link" href="/">Home</a></li>
+          <li><a class="scroll-link" href="#features">Demo</a></li>
+          <li><a class="scroll-link" href="#">Management</a></li>
+          <li><a class="scroll-link" href="#how-it-works">Products</a></li>
+          <li><a href="/p2p/document/index.html">Docs</a></li>
+          <li><a class="scroll-link" href="#about-us">About</a></li>
+          <li><a href="#">Login</a></li>
+          <li><a href="#">Sign up</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+ <div class="col-md-10 col-md-offset-1" id="chartContainer" style="height: 80%; width: 80%; margin-top: 100px">
+  </div>
+</body>
+</html>
+
+<script type="text/javascript" src="canvasjs.min.js"></script>
+<script type="text/javascript">
+$.ajax({
+  url: "<%- data.rooms %>",
+  type: "get",
+  headers: {
+      'Content-Type': 'application/json'
+  },
+  dataType: "json",
+  success: function(result) {
+    console.log(result.success.data);
+    update_chart(result.success.data);
+  },
+  error: function(error) {
+    console.log(error);
+  }
+});
+setInterval(function(){ 
+  $.ajax({
+    url: "<%- data.rooms %>",
+    type: "get",
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    dataType: "json",
+    success: function(result) {
+      console.log(result.success.data);
+      update_chart(result.success.data);
+    },
+    error: function(error) {
+      console.log(error);
+    }
+  });
+}, 3000);
+
+function update_chart(data) {
+  var chart = new CanvasJS.Chart("chartContainer",
+  {
+    title:{
+    text: "Room Management"   
+    },
+    animationEnabled: false,
+    // animationDuration: false,
+    axisX:{
+      title: "Rooms"
+    },
+    axisY:{
+      title: "percentage"
+    },
+    data: [
+    {        
+      type: "stackedColumn100",
+      name: "HTTP",
+      showInLegend: "true",
+      color: "#B40404",
+      dataPoints: [
+      {  y: data[0].http, label: "Star War"},
+      {  y: data[1].http, label: "Nature" },
+      {  y: data[2].http, label: "Cartoon" },               
+      ]
+    }, {        
+      type: "stackedColumn100",        
+      name: "PEER",
+      showInLegend: "true",
+      color: "#0174DF",
+      dataPoints: [
+      {  y: data[0].peer, label: "Star War"},
+      {  y: data[1].peer, label: "Nature" },
+      {  y: data[2].peer, label: "Cartoon" },              
+      ]
+    }
+    ]
+  });
+  chart.render();
+}
+</script>
